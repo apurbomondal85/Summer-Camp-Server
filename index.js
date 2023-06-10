@@ -9,7 +9,7 @@ app.use(express.json())
 app.use(cors())
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.USER_PASS}@cluster0.unnbbpt.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -46,9 +46,9 @@ async function run() {
         })
 
         // post user
-        app.post('/users', async(req, res) => {
+        app.post('/users', async (req, res) => {
             const user = req.body;
-            const query = {"email": user.email}
+            const query = { "email": user.email }
             const findUser = await UsersCollection.findOne(query);
             if (findUser) {
                 return;
@@ -56,22 +56,35 @@ async function run() {
             const result = await UsersCollection.insertOne(user);
             res.send(result)
         })
-        app.get('/users/:email', async(req, res) =>{
+        app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
-            const query = {"email": email};
+            const query = { "email": email };
             const result = await UsersCollection.findOne(query);
             res.send(result);
         })
 
         // selected class
-        app.post('/selected', async(req, res) => {
+        app.post('/selected', async (req, res) => {
             const selectedClass = req.body;
-            const query = {"className": selectedClass.className}
+            const query = { "className": selectedClass.className }
             const selected = await selectedCollection.findOne(query);
             if (selected) {
                 return;
             }
             const result = await selectedCollection.insertOne(selectedClass);
+            res.send(result)
+        })
+        app.get('/selected/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { "email": email }
+            const result = await selectedCollection.find(query).toArray();
+            res.send(result)
+        })
+        // delete selected class
+        app.delete('/selected/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await selectedCollection.deleteOne(query);
             res.send(result)
         })
 
