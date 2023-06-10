@@ -29,6 +29,8 @@ async function run() {
         const classCollection = client.db("summerCamp").collection("classes");
         const instructorCollection = client.db("summerCamp").collection("instructors");
         const blogsCollection = client.db("summerCamp").collection("blogs");
+        const UsersCollection = client.db("summerCamp").collection("users");
+        const selectedCollection = client.db("summerCamp").collection("selected");
 
         app.get('/classes', async (req, res) => {
             const result = await classCollection.find().toArray();
@@ -40,6 +42,36 @@ async function run() {
         })
         app.get('/blogs', async (req, res) => {
             const result = await blogsCollection.find().toArray();
+            res.send(result)
+        })
+
+        // post user
+        app.post('/users', async(req, res) => {
+            const user = req.body;
+            const query = {"email": user.email}
+            const findUser = await UsersCollection.findOne(query);
+            if (findUser) {
+                return;
+            }
+            const result = await UsersCollection.insertOne(user);
+            res.send(result)
+        })
+        app.get('/users/:email', async(req, res) =>{
+            const email = req.params.email;
+            const query = {"email": email};
+            const result = await UsersCollection.findOne(query);
+            res.send(result);
+        })
+
+        // selected class
+        app.post('/selected', async(req, res) => {
+            const selectedClass = req.body;
+            const query = {"className": selectedClass.className}
+            const selected = await selectedCollection.findOne(query);
+            if (selected) {
+                return;
+            }
+            const result = await selectedCollection.insertOne(selectedClass);
             res.send(result)
         })
 
