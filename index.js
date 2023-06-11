@@ -60,6 +60,19 @@ async function run() {
             const result = await classCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
+        app.patch('/classes', async (req, res) => {
+            const id = req.query.id;
+            const updateFeedback = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    feedback: updateFeedback.feedback
+                },
+            };
+            console.log(updateDoc);
+            const result = await classCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
 
 
         // get instructor
@@ -84,10 +97,27 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result)
         })
+        app.get('/users', async (req, res) => {
+            const query = { role: "user" }
+            const result = await usersCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
             const query = { "email": email };
             const result = await usersCollection.findOne(query);
+            res.send(result);
+        })
+        app.patch('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateRole = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    role: updateRole.role
+                },
+            };
+            const result = await usersCollection.updateOne(query, updateDoc);
             res.send(result);
         })
 
