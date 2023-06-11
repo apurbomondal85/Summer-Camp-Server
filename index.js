@@ -29,15 +29,28 @@ async function run() {
         const classCollection = client.db("summerCamp").collection("classes");
         const instructorCollection = client.db("summerCamp").collection("instructors");
         const blogsCollection = client.db("summerCamp").collection("blogs");
-        const UsersCollection = client.db("summerCamp").collection("users");
+        const usersCollection = client.db("summerCamp").collection("users");
         const selectedCollection = client.db("summerCamp").collection("selected");
 
+        // added classes 
+        app.post('/classes', async (req, res) => {
+            const addClass = req.body;
+            const result = await classCollection.insertOne(addClass);
+            res.send(result)
+        })
         app.get('/classes', async (req, res) => {
             const result = await classCollection.find().toArray();
             res.send(result)
         })
+        app.get('/classes/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await classCollection.find({email}).toArray();
+            res.send(result)
+        })
+
+        // get instructor
         app.get('/instructors', async (req, res) => {
-            const result = await instructorCollection.find().toArray();
+            const result = await usersCollection.find().toArray();
             res.send(result)
         })
         app.get('/blogs', async (req, res) => {
@@ -49,24 +62,29 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const query = { "email": user.email }
-            const findUser = await UsersCollection.findOne(query);
+            const findUser = await usersCollection.findOne(query);
             if (findUser) {
                 return;
             }
-            const result = await UsersCollection.insertOne(user);
+            const result = await usersCollection.insertOne(user);
             res.send(result)
         })
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
             const query = { "email": email };
-            const result = await UsersCollection.findOne(query);
+            const result = await usersCollection.findOne(query);
             res.send(result);
         })
 
         // selected class
         app.post('/selected', async (req, res) => {
             const selectedClass = req.body;
-            const query = { "className": selectedClass.className }
+            const query = {
+                $and: [
+                    { email: selectedClass.email },
+                    { "className": selectedClass.className }
+                ]
+            }
             const selected = await selectedCollection.findOne(query);
             if (selected) {
                 return;
