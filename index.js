@@ -44,13 +44,28 @@ async function run() {
         })
         app.get('/classes/:email', async (req, res) => {
             const email = req.params.email;
-            const result = await classCollection.find({email}).toArray();
+            const result = await classCollection.find({ email }).toArray();
+            res.send(result)
+        })
+        // update Classes status
+        app.patch('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateStatus = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    status: updateStatus.status
+                },
+            };
+            const result = await classCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
 
+
         // get instructor
-        app.get('/instructors', async (req, res) => {
-            const result = await usersCollection.find().toArray();
+        app.get('/instructors/:role', async (req, res) => {
+            const role = req.params.role;
+            const result = await usersCollection.find({ role }).toArray();
             res.send(result)
         })
         app.get('/blogs', async (req, res) => {
