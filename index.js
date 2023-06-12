@@ -92,9 +92,10 @@ async function run() {
             const result = await classCollection.find().toArray();
             res.send(result)
         })
-        app.get('/classes/:email', async (req, res) => {
+        app.get('/classes/:email', jwtVerify, async (req, res) => {
+            const decoded = req.decoded;
             const email = req.params.email;
-            const result = await classCollection.find({ email }).toArray();
+            const result = await classCollection.find({ email: decoded.email }).toArray();
             res.send(result)
         })
         // update Classes status
