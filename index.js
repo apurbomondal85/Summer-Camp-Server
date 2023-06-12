@@ -111,6 +111,7 @@ async function run() {
             const result = await classCollection.updateOne(filter, updateDoc)
             res.send(result)
         })
+        // set feedback
         app.patch('/classes', async (req, res) => {
             const id = req.query.id;
             const updateFeedback = req.body;
@@ -148,6 +149,7 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result)
         })
+        // get user role
         app.get('/users', async (req, res) => {
             const query = { role: "user" }
             const result = await usersCollection.find(query).toArray();
@@ -159,6 +161,7 @@ async function run() {
             const result = await usersCollection.findOne(query);
             res.send(result);
         })
+        // update user role
         app.patch('/users/:id', async (req, res) => {
             const id = req.params.id;
             const updateRole = req.body;
