@@ -62,6 +62,7 @@ async function run() {
             const result = await classCollection.insertOne(addClass);
             res.send(result)
         })
+        // get all class
         app.get('/classes', async (req, res) => {
             const result = await classCollection.find().toArray();
             res.send(result)
