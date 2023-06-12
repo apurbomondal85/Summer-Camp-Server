@@ -60,7 +60,7 @@ async function run() {
         })
 
         // payment section
-        app.post("/create-payment-intent", jwtVerify, async (req, res) => {
+        app.post("/create-payment-intent", async (req, res) => {
             try {
                 const { price } = req.body;
                 if (!price) {
