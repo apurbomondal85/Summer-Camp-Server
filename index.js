@@ -3,11 +3,30 @@ const express = require('express')
 const app = express();
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
 app.use(express.json())
 app.use(cors())
+
+const jwtVerify = (req, res, next) => {
+    const token = req.headers.authorization;
+
+    if (token) {
+        jwt.verify(token, process.env.USER_TOKEN, (err, user) => {
+            if (err) {
+                return res.sendStatus(403); // Forbidden
+            }
+
+            req.decoded = user;
+            next();
+        });
+    } else {
+        res.sendStatus(401); // Unauthorized
+    }
+}
+
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -33,9 +52,15 @@ async function run() {
         const usersCollection = client.db("summerCamp").collection("users");
         const selectedCollection = client.db("summerCamp").collection("selected");
 
+        // jwt
+        app.post('/jwt', (req, res) => {
+            const email = req.body;
+            const token = jwt.sign(email, process.env.USER_TOKEN, { expiresIn: '1h' });
+            res.send({ token })
+        })
 
         // payment section
-        app.post("/create-payment-intent", async (req, res) => {
+        app.post("/create-payment-intent", jwtVerify, async (req, res) => {
             try {
                 const { price } = req.body;
                 if (!price) {
@@ -51,7 +76,7 @@ async function run() {
                     clientSecret: paymentIntent.client_secret,
                 });
             } catch (error) {
-               res.send({erro: error.message});
+                res.send({ erro: error.message });
             }
         });
 
