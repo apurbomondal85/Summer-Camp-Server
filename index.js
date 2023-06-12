@@ -1,6 +1,7 @@
 
 const express = require('express')
 const app = express();
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 const cors = require("cors");
 require('dotenv').config();
 const port = process.env.PORT || 5000;
@@ -31,6 +32,29 @@ async function run() {
         const blogsCollection = client.db("summerCamp").collection("blogs");
         const usersCollection = client.db("summerCamp").collection("users");
         const selectedCollection = client.db("summerCamp").collection("selected");
+
+
+        // payment section
+        app.post("/create-payment-intent", async (req, res) => {
+            try {
+                const { price } = req.body;
+                if (!price) {
+                    return;
+                }
+                const amount = price * 100;
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount,
+                    currency: "usd",
+                    payment_method_types: ['card'],
+                });
+                res.send({
+                    clientSecret: paymentIntent.client_secret,
+                });
+            } catch (error) {
+                console.log(error.message);
+            }
+        });
+
 
         // added classes 
         app.post('/classes', async (req, res) => {
