@@ -51,7 +51,7 @@ async function run() {
                     clientSecret: paymentIntent.client_secret,
                 });
             } catch (error) {
-                console.log(error.message);
+               res.send({erro: error.message});
             }
         });
 
